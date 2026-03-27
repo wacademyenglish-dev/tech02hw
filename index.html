@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WOLF LABS TECH | Homework: A Day in the Life</title>
+    <!-- Epic & Tech Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@300;400;600;700;800&family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- WOLF LABS ENGINE V2.2: TECH SPECIALIZED (PURPLE PALETTE) --- */
+        :root {
+            --bg: #030008;
+            --surface: rgba(17, 10, 30, 0.85);
+            --surface-hover: rgba(168, 85, 247, 0.15);
+            --border: rgba(168, 85, 247, 0.3);
+            --accent: #A855F7;
+            --accent-dim: rgba(168, 85, 247, 0.15);
+            --accent-glow: rgba(168, 85, 247, 0.4);
+            --correct: #1DB954;
+            --incorrect: #E50914; 
+            --text-main: #FFFFFF;
+            --text-dim: #A1A1AA;
+            --font-display: 'Inter', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-code: 'Fira Code', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-body); }
+
+        body {
+            background: radial-gradient(circle at 50% 0%, rgba(40, 10, 70, 0.5) 0%, rgba(3,0,8,1) 80%),
+                        linear-gradient(0deg, rgba(3,0,8,1) 0%, rgba(3,0,8,0.9) 100%),
+                        url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2000&auto=format&fit=crop') no-repeat center center fixed;
+            background-size: cover;
+            color: var(--text-main);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- AMBIENT GLOW --- */
+        .ambient-glow {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 0; pointer-events: none;
+        }
+        .orb {
+            position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.2;
+            animation: floatOrb 20s infinite alternate ease-in-out;
+        }
+        .orb-1 { width: 450px; height: 450px; background: var(--accent); top: -10%; left: -10%; }
+        .orb-2 { width: 350px; height: 350px; background: #4F46E5; bottom: -10%; right: -10%; animation-delay: -5s; }
+
+        @keyframes floatOrb { 0% { transform: translate(0,0); } 100% { transform: translate(40px, 40px); } }
+
+        /* --- HEADER --- */
+        .header {
+            position: fixed;
+            top: 0; left: 0; right: 0; z-index: 100;
+            background: linear-gradient(to bottom, rgba(3,0,8,0.95), transparent);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 15px 25px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo { font-family: var(--font-code); font-weight: 900; font-size: 1rem; letter-spacing: 2px; color: #fff; }
+        .logo span { color: var(--accent); }
+        
+        .progress-bar-container {
+            position: absolute; bottom: -1px; left: 0; right: 0; height: 3px; background: rgba(255,255,255,0.05);
+        }
+        .progress-bar { height: 100%; background: var(--accent); width: 0%; transition: width 0.4s ease; box-shadow: 0 0 15px var(--accent-glow); }
+
+        /* --- MAIN CONTAINER --- */
+        main {
+            flex: 1;
+            margin-top: 60px;
+            margin-bottom: 80px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 10;
+        }
+
+        .step {
+            position: absolute;
+            width: 100%;
+            max-width: 650px;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateX(30px);
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 10px;
+            scrollbar-width: none;
+        }
+        .step::-webkit-scrollbar { display: none; }
+
+        .step.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(0);
+            visibility: visible;
+            position: relative;
+        }
+
+        .step.exiting {
+            transform: translateX(-30px);
+            opacity: 0;
+        }
+
+        /* --- GLASS CARD --- */
+        .glass-card {
+            background: var(--surface);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+
+        /* --- TYPOGRAPHY --- */
+        .code-tag { font-family: var(--font-code); color: var(--accent); font-size: 0.85rem; background: rgba(168, 85, 247, 0.1); padding: 4px 10px; border-radius: 6px; letter-spacing: 0; display: inline-block; margin-bottom: 15px;}
+        h1 { font-family: var(--font-display); font-size: 3rem; font-weight: 900; line-height: 1.1; margin-bottom: 15px; letter-spacing: -1px; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .subtitle { color: var(--text-dim); font-size: 1.1rem; margin-bottom: 25px; line-height: 1.6; }
+        .question-text { font-size: 1.25rem; font-weight: 600; line-height: 1.6; color: #fff; margin-bottom: 20px; font-family: var(--font-code);}
+
+        /* --- MULTIPLE CHOICE --- */
+        .mc-options { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+        .mc-btn {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            padding: 18px 25px;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            text-align: left;
+            transition: all 0.3s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: var(--font-code);
+        }
+        .mc-btn:hover { background: var(--surface-hover); border-color: var(--accent); transform: translateX(5px); }
+        
+        .mc-btn.correct { 
+            border-color: var(--correct); 
+            background: rgba(29, 185, 84, 0.15); 
+            box-shadow: 0 0 20px rgba(29, 185, 84, 0.2);
+        }
+        .mc-btn.correct::after { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: var(--correct); font-size: 1.2rem; }
+        
+        .mc-btn.incorrect { 
+            border-color: var(--incorrect); 
+            background: rgba(229, 9, 20, 0.1); 
+        }
+        .mc-btn.incorrect::after { content: '\f00d'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: var(--incorrect); font-size: 1.2rem; }
+
+        /* --- SENTENCE BUILDER --- */
+        .drop-zone {
+            min-height: 120px;
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            gap: 10px;
+            flex-wrap: wrap;
+            transition: all 0.3s;
+            background: rgba(0, 0, 0, 0.4);
+        }
+        .drop-zone.success { 
+            border-color: var(--correct); 
+            border-style: solid; 
+            background: rgba(29, 185, 84, 0.1); 
+            box-shadow: inset 0 0 20px rgba(29, 185, 84, 0.15);
+        }
+        .word-bank { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+        .word-chip {
+            padding: 14px 24px;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-weight: 800;
+            font-size: 1.05rem;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(168, 85, 247, 0.3);
+            font-family: var(--font-code);
+        }
+        .word-chip:hover { filter: brightness(1.2); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(168, 85, 247, 0.4); }
+        .word-chip:active { transform: scale(0.95); }
+        .word-chip.used { opacity: 0; pointer-events: none; transform: scale(0.8); }
+
+        /* --- CHAT SCENARIO --- */
+        .chat-container { display: flex; flex-direction: column; gap: 18px; width: 100%; margin-top: 15px; font-family: var(--font-code);}
+        .msg { padding: 18px 25px; border-radius: 12px; max-width: 85%; font-size: 1.05rem; line-height: 1.5; text-align: left;}
+        .msg.friend { background: rgba(0,0,0,0.5); align-self: flex-start; border-bottom-left-radius: 4px; color: var(--accent); border: 1px solid rgba(255,255,255,0.1); }
+        .msg.you { background: var(--accent); color: #000; align-self: flex-end; border-bottom-right-radius: 4px; display: none; font-weight: 700; box-shadow: 0 5px 15px var(--accent-glow);}
+        
+        .chat-option { padding: 18px; background: rgba(255,255,255,0.03); border-radius: 8px; cursor: pointer; text-align: left; color: #fff; font-weight: 600; border: 1px solid rgba(255,255,255,0.15); transition: 0.3s;}
+        .chat-option:hover { background: rgba(255,255,255,0.08); border-color: var(--accent); transform: translateX(8px); color: var(--accent);}
+
+        /* --- ERROR FINDER --- */
+        .highlight-zone { padding: 35px 20px; background: rgba(255,255,255,0.02); border-radius: 16px; border: 1px solid var(--border); text-align: center; margin-bottom: 20px;}
+        .error-sentence { font-size: 1.6rem; word-spacing: 6px; line-height: 2; font-weight: 700; color: #fff;}
+        .error-word { display: inline-block; padding: 6px 12px; cursor: pointer; border-radius: 8px; transition: 0.3s; border: 1px solid transparent;}
+        .error-word:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); transform: scale(1.1); }
+
+        /* --- BOTTOM NAVIGATION --- */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: linear-gradient(to top, rgba(3,0,8,1), rgba(3,0,8,0.8));
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 20px 30px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .next-btn {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 18px 0;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            width: 100%;
+            max-width: 600px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            text-transform: uppercase;
+            font-family: var(--font-code);
+        }
+        .next-btn:disabled { opacity: 0.2; pointer-events: none; }
+        .next-btn.ready { background: var(--accent); color: #000; box-shadow: 0 10px 30px var(--accent-glow); transform: translateY(-3px); }
+        .next-btn.ready:active { transform: translateY(1px); }
+
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25%, 75% { transform: translateX(-8px); } 50% { transform: translateX(8px); } }
+
+    </style>
+</head>
+<body>
+
+    <!-- Fundo Imersivo -->
+    <div class="ambient-glow">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <header class="header">
+        <div class="logo"><i class="fa-solid fa-code" style="color:var(--accent); margin-right: 8px;"></i>WOLF LABS <span>|</span> HOMEWORK</div>
+        <div style="color: var(--text-dim); font-size: 0.9rem; font-weight: 800; letter-spacing: 2px; font-family: var(--font-code);" id="step-counter">mission(1/9)</div>
+        <div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+    </header>
+
+    <main>
+        <!-- INTRO -->
+        <section class="step active" id="step-0">
+            <div class="glass-card" style="padding: 50px 30px;">
+                <span class="code-tag">TRAINING_MISSION // A2</span>
+                <h1>A Day In<br>The Life</h1>
+                <p class="subtitle" style="margin-bottom: 30px;">Complete this interactive system review to compile the vocabulary and grammar from today's session.</p>
+                
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 20px; border-radius: 12px; margin-bottom: 15px; display: flex; align-items: center; gap: 20px; text-align: left;">
+                    <i class="fa-solid fa-book-open" style="font-size: 2rem; color: var(--accent);"></i>
+                    <div><h3 style="font-size: 1.1rem; margin:0; color: #fff; font-family: var(--font-code);">Vocabulary Check</h3><p style="margin:0; font-size: 0.9rem; color: var(--text-dim);">Test your words</p></div>
+                </div>
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 20px; border-radius: 12px; margin-bottom: 15px; display: flex; align-items: center; gap: 20px; text-align: left;">
+                    <i class="fa-solid fa-bug" style="font-size: 2rem; color: var(--accent);"></i>
+                    <div><h3 style="font-size: 1.1rem; margin:0; color: #fff; font-family: var(--font-code);">Error Detection</h3><p style="margin:0; font-size: 0.9rem; color: var(--text-dim);">Find the syntax bug</p></div>
+                </div>
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 20px; border-radius: 12px; display: flex; align-items: center; gap: 20px; text-align: left;">
+                    <i class="fa-solid fa-puzzle-piece" style="font-size: 2rem; color: var(--accent);"></i>
+                    <div><h3 style="font-size: 1.1rem; margin:0; color: #fff; font-family: var(--font-code);">Sentence Builder</h3><p style="margin:0; font-size: 0.9rem; color: var(--text-dim);">Compile perfect routines</p></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Q1: VOCABULÁRIO MCQ -->
+        <section class="step" id="step-1">
+            <div class="glass-card">
+                <span class="code-tag">SYS.VOCABULARY</span>
+                <p class="question-text">> To rest and get your energy back is to...</p>
+                <div class="mc-options">
+                    <button class="mc-btn" data-correct="false" onclick="selectOption(this)">Execute</button>
+                    <button class="mc-btn" data-correct="true" onclick="selectOption(this)">Recharge</button>
+                    <button class="mc-btn" data-correct="false" onclick="selectOption(this)">Commute</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Q2: VOCABULÁRIO MCQ -->
+        <section class="step" id="step-2">
+            <div class="glass-card">
+                <span class="code-tag">SYS.VOCABULARY</span>
+                <p class="question-text">> To produce an idea or way of solving a problem is to...</p>
+                <div class="mc-options">
+                    <button class="mc-btn" data-correct="true" onclick="selectOption(this)">Brainstorm</button>
+                    <button class="mc-btn" data-correct="false" onclick="selectOption(this)">Boundary</button>
+                    <button class="mc-btn" data-correct="false" onclick="selectOption(this)">Productivity</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Q3: GRAMMAR MCQ (PRESENT SIMPLE) -->
+        <section class="step" id="step-3">
+            <div class="glass-card">
+                <span class="code-tag">SYS.GRAMMAR // PRESENT SIMPLE</span>
+                <p class="question-text">> "My coworker ________ the day with a coffee."</p>
+                <div class="mc-options">
+                    <button class="mc-btn" data-correct="false" onclick="selectOption(this)">start</button>
+                    <button class="mc-btn" data-correct="true" onclick="selectOption(this)">starts</button>
+                    <button class="mc-btn" data-correct="false" onclick="selectOption(this)">starting</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Q4: GRAMMAR MCQ (NEGATIVE) -->
+        <section class="step" id="step-4">
+            <div class="glass-card">
+                <span class="code-tag">SYS.GRAMMAR // NEGATIVE</span>
+                <p class="question-text">> "He ________ stay inside all day."</p>
+                <div class="mc-options">
+                    <button class="mc-btn" data-correct="true" onclick="selectOption(this)">doesn't</button>
+                    <button class="mc-btn" data-correct="false" onclick="selectOption(this)">don't</button>
+                    <button class="mc-btn" data-correct="false" onclick="selectOption(this)">isn't</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Q5: CONSTRUTOR DE FRASES -->
+        <section class="step" id="step-5">
+            <div class="glass-card">
+                <span class="code-tag">SYS.SYNTAX_BUILDER</span>
+                <p class="question-text" style="margin-bottom: 25px;">> Unscramble the words to describe a daily habit.</p>
+                <div class="drop-zone" id="dz1"></div>
+                <div class="word-bank" id="wb1">
+                    <div class="word-chip" onclick="moveWord(this, 'dz1', ['He', 'writes', 'code', 'every', 'day'])">every</div>
+                    <div class="word-chip" onclick="moveWord(this, 'dz1', ['He', 'writes', 'code', 'every', 'day'])">code</div>
+                    <div class="word-chip" onclick="moveWord(this, 'dz1', ['He', 'writes', 'code', 'every', 'day'])">He</div>
+                    <div class="word-chip" onclick="moveWord(this, 'dz1', ['He', 'writes', 'code', 'every', 'day'])">day</div>
+                    <div class="word-chip" onclick="moveWord(this, 'dz1', ['He', 'writes', 'code', 'every', 'day'])">writes</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Q6: CONSTRUTOR DE FRASES (NEGATIVE) -->
+        <section class="step" id="step-6">
+            <div class="glass-card">
+                <span class="code-tag">SYS.SYNTAX_BUILDER // NEGATIVE</span>
+                <p class="question-text" style="margin-bottom: 25px;">> Build the negative sentence carefully.</p>
+                <div class="drop-zone" id="dz2"></div>
+                <div class="word-bank" id="wb2">
+                    <div class="word-chip" onclick="moveWord(this, 'dz2', ['She', 'never', 'checks', 'emails', 'at', 'night'])">emails</div>
+                    <div class="word-chip" onclick="moveWord(this, 'dz2', ['She', 'never', 'checks', 'emails', 'at', 'night'])">at</div>
+                    <div class="word-chip" onclick="moveWord(this, 'dz2', ['She', 'never', 'checks', 'emails', 'at', 'night'])">She</div>
+                    <div class="word-chip" onclick="moveWord(this, 'dz2', ['She', 'never', 'checks', 'emails', 'at', 'night'])">checks</div>
+                    <div class="word-chip" onclick="moveWord(this, 'dz2', ['She', 'never', 'checks', 'emails', 'at', 'night'])">night</div>
+                    <div class="word-chip" onclick="moveWord(this, 'dz2', ['She', 'never', 'checks', 'emails', 'at', 'night'])">never</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Q7: ERROR DETECTION -->
+        <section class="step" id="step-7">
+            <div class="glass-card">
+                <span class="code-tag">SYS.BUG_FINDER</span>
+                <p class="question-text" style="margin-bottom: 25px;">> Tap the <strong>wrong</strong> word.</p>
+                <div class="highlight-zone">
+                    <div class="error-sentence">
+                        <span class="error-word" onclick="genericCorrect(this, false)">The</span>
+                        <span class="error-word" onclick="genericCorrect(this, false)">developer</span>
+                        <span class="error-word" onclick="genericCorrect(this, true)">don't</span>
+                        <span class="error-word" onclick="genericCorrect(this, false)">work</span>
+                        <span class="error-word" onclick="genericCorrect(this, false)">on</span>
+                        <span class="error-word" onclick="genericCorrect(this, false)">Sunday.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Q8: CHAT SCENARIO -->
+        <section class="step" id="step-8">
+            <div class="glass-card">
+                <span class="code-tag">SYS.LIVE_CHAT</span>
+                <p class="question-text" style="margin-bottom: 20px;">> Choose the correct grammatical reply.</p>
+                <div class="chat-container">
+                    <div class="msg friend">> "Hey! Does the new developer work remotely?"</div>
+                    <div class="chat-options" id="chat1" style="display: flex; flex-direction: column; gap: 15px; margin-top: 10px;">
+                        <div class="chat-option" onclick="handleChat(this, false, 'chat1')">> No, he don't. He commutes to the office.</div>
+                        <div class="chat-option" onclick="handleChat(this, true, 'chat1')">> No, he doesn't. He commutes to the office.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONCLUSÃO -->
+        <section class="step" id="step-9">
+            <div class="glass-card" style="border-color: var(--correct); background: rgba(29, 185, 84, 0.05); padding: 50px 30px;">
+                <div style="width: 100px; height: 100px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 30px auto; box-shadow: 0 0 40px rgba(168, 85, 247, 0.3);">
+                    <i class="fa-solid fa-check" style="font-size: 3.5rem; color: #000;"></i>
+                </div>
+                <h1 style="color: var(--accent); font-size: 2.8rem; text-shadow: none;">Mission Accomplished</h1>
+                <p class="subtitle" style="color: #fff; font-weight: 600; margin-top: 15px;">Your homework data has been successfully processed and synced to the teacher's database.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- AÇÃO INFERIOR -->
+    <div class="bottom-bar">
+        <button class="next-btn" id="nextBtn" onclick="nextStep()">EXECUTE_HOMEWORK()</button>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        const steps = document.querySelectorAll('.step');
+        const totalSteps = steps.length;
+        const nextBtn = document.getElementById('nextBtn');
+        const progressBar = document.getElementById('progressBar');
+        const stepCounter = document.getElementById('step-counter');
+
+        window.buildState = { 'dz1': [], 'dz2': [] };
+
+        function updateUI() {
+            steps.forEach((step, index) => {
+                if(index === currentStep) {
+                    step.classList.remove('exiting');
+                    step.classList.add('active');
+                } else if (index < currentStep) {
+                    step.classList.remove('active');
+                    step.classList.add('exiting');
+                } else {
+                    step.classList.remove('active', 'exiting');
+                }
+            });
+
+            const progress = (currentStep / (totalSteps - 1)) * 100;
+            progressBar.style.width = `${progress}%`;
+
+            if(currentStep === 0) {
+                stepCounter.innerText = "boot_sequence()";
+            } else if (currentStep === totalSteps - 1) {
+                stepCounter.innerText = "status: DONE";
+            } else {
+                stepCounter.innerText = `mission(${currentStep}/${totalSteps - 2})`;
+            }
+
+            if (currentStep === 0) {
+                nextBtn.innerText = "EXECUTE_HOMEWORK()";
+                nextBtn.disabled = false;
+                nextBtn.classList.add('ready');
+            } else if (currentStep === totalSteps - 1) {
+                nextBtn.innerText = "CLOSE_SYSTEM()";
+                nextBtn.disabled = false;
+                nextBtn.classList.add('ready');
+            } else {
+                nextBtn.innerText = "AWAITING_INPUT...";
+                nextBtn.disabled = true;
+                nextBtn.classList.remove('ready');
+            }
+        }
+
+        function nextStep() {
+            if (currentStep === totalSteps - 1) {
+                alert("Session logged. You can close this window now.");
+                return;
+            }
+            currentStep++;
+            updateUI();
+        }
+
+        // --- LÓGICA DE ESCOLHA MÚLTIPLA ---
+        function selectOption(btn) {
+            const parentStep = btn.closest('.step');
+            const allBtns = parentStep.querySelectorAll('.mc-btn');
+            
+            if (parentStep.classList.contains('answered-correctly')) return;
+
+            if (btn.dataset.correct === "true") {
+                btn.classList.remove('incorrect');
+                btn.classList.add('correct');
+                
+                allBtns.forEach(b => {
+                    if (b !== btn) {
+                        b.style.opacity = '0.3';
+                    }
+                    b.style.pointerEvents = 'none';
+                });
+
+                parentStep.classList.add('answered-correctly');
+                nextBtn.disabled = false;
+                nextBtn.innerText = "EXECUTE_NEXT()";
+                nextBtn.classList.add('ready');
+            } else {
+                btn.classList.add('incorrect');
+                btn.style.animation = 'shake 0.4s';
+                btn.style.pointerEvents = 'none';
+                
+                setTimeout(() => {
+                    btn.style.animation = '';
+                }, 400);
+            }
+        }
+
+        // --- LÓGICA CHAT SCENARIO ---
+        function handleChat(btn, isCorrect, containerId) {
+            const container = document.getElementById(containerId);
+            const options = Array.from(container.querySelectorAll('.chat-option'));
+            const parentStep = btn.closest('.step');
+            
+            if (parentStep.classList.contains('answered-correctly')) return;
+
+            if(isCorrect) {
+                options.forEach(b => b.style.pointerEvents = 'none');
+                btn.style.borderColor = 'var(--correct)';
+                btn.style.background = 'var(--correct)';
+                btn.style.color = '#000';
+                parentStep.classList.add('answered-correctly');
+                
+                setTimeout(() => {
+                    container.innerHTML += `<div class="msg you" style="display:block;">${btn.innerText}</div>`;
+                    options.forEach(b => b.style.display = 'none');
+                    nextBtn.disabled = false;
+                    nextBtn.innerText = "EXECUTE_NEXT()";
+                    nextBtn.classList.add('ready');
+                }, 600);
+            } else {
+                btn.style.borderColor = 'var(--incorrect)';
+                btn.style.background = 'var(--incorrect)';
+                btn.style.color = '#fff';
+                btn.style.animation = 'shake 0.4s';
+                setTimeout(() => { 
+                    btn.style.animation = ''; 
+                    btn.style.background = 'rgba(255,255,255,0.03)';
+                    btn.style.borderColor = 'var(--border)';
+                }, 800);
+            }
+        }
+
+        // --- LÓGICA ERROR DETECTION ---
+        function genericCorrect(btn, isCorrect) {
+            const parent = btn.parentElement.parentElement; 
+            const stepContainer = btn.closest('.step');
+            
+            if(stepContainer.classList.contains('answered-correctly')) return;
+
+            if(isCorrect) {
+                btn.style.backgroundColor = 'var(--correct)';
+                btn.style.color = '#000';
+                stepContainer.classList.add('answered-correctly');
+                nextBtn.disabled = false;
+                nextBtn.innerText = "EXECUTE_NEXT()";
+                nextBtn.classList.add('ready');
+                
+                Array.from(parent.querySelectorAll('.error-word')).forEach(b => {
+                   if(b !== btn) { b.style.opacity = '0.3'; b.style.pointerEvents = 'none'; }
+                });
+            } else {
+                btn.style.backgroundColor = 'var(--incorrect)';
+                btn.style.color = '#fff';
+                btn.style.animation = 'shake 0.4s';
+                setTimeout(() => { btn.style.animation = ''; btn.style.backgroundColor = 'transparent'; }, 800);
+            }
+        }
+
+        // --- LÓGICA DO CONSTRUTOR DE FRASES (NATIVE ARRAY - BUG FREE) ---
+        function moveWord(chip, dzId, targetArray) {
+            if(chip.classList.contains('used')) return;
+            
+            const word = chip.innerText;
+            const dz = document.getElementById(dzId);
+            
+            const newChip = document.createElement('div');
+            newChip.className = 'word-chip';
+            newChip.style.background = 'rgba(168, 85, 247, 0.15)';
+            newChip.style.border = '1px solid var(--accent)';
+            newChip.style.color = '#fff';
+            newChip.innerText = word;
+            
+            // Allow click to remove
+            if (!chip.id) chip.id = 'chip_' + Math.random().toString(36).substr(2, 9);
+            newChip.dataset.sourceId = chip.id;
+
+            newChip.onclick = function() {
+                if(dz.classList.contains('success')) return;
+                dz.removeChild(this);
+                document.getElementById(this.dataset.sourceId).classList.remove('used');
+                const idx = window.buildState[dzId].lastIndexOf(this.innerText);
+                if(idx !== -1) window.buildState[dzId].splice(idx, 1);
+            };
+            
+            dz.appendChild(newChip);
+            chip.classList.add('used');
+
+            if(!window.buildState[dzId]) window.buildState[dzId] = [];
+            window.buildState[dzId].push(word);
+
+            if(window.buildState[dzId].length === targetArray.length) {
+                const isCorrect = JSON.stringify(window.buildState[dzId]) === JSON.stringify(targetArray);
+                
+                if(isCorrect) {
+                    dz.classList.add('success');
+                    Array.from(dz.children).forEach(c => {
+                        c.style.background = 'var(--accent)';
+                        c.style.color = '#000';
+                        c.style.cursor = 'default';
+                        c.style.borderColor = 'var(--accent)';
+                    });
+                    nextBtn.disabled = false;
+                    nextBtn.innerText = "EXECUTE_NEXT()";
+                    nextBtn.classList.add('ready');
+                } else {
+                    dz.style.borderColor = 'var(--incorrect)';
+                    dz.style.animation = 'shake 0.4s';
+                    dz.style.pointerEvents = 'none';
+                    
+                    setTimeout(() => {
+                        dz.innerHTML = '';
+                        dz.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                        dz.style.animation = '';
+                        window.buildState[dzId] = [];
+                        
+                        const bankChips = chip.parentElement.querySelectorAll('.word-chip');
+                        bankChips.forEach(c => c.classList.remove('used'));
+                        dz.style.pointerEvents = 'auto';
+                    }, 1000);
+                }
+            }
+        }
+
+        updateUI();
+    </script>
+</body>
+</html>
